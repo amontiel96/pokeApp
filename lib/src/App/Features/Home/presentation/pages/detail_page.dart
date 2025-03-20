@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:poke_app/src/App/Core/constants/global_constants.dart';
 import 'package:poke_app/src/AtomicModel-UI/module_ui.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
@@ -52,9 +54,9 @@ class DetailPageState extends State<DetailPage> {
         } else if (state is PokemonLoaded) {
           final pokemon = state.pokemon;
           return TDSMHeaderScaffold(
-            appBarColor: CoreUtils.getPokemonBackgroundColor(
+            appBarColor:pokemon.types[0] !=null? CoreUtils.getPokemonBackgroundColor(
               pokemon.types[0],
-            ),
+            ): Colors.black,
             backgroundType: TDSMBgType.medium,
             backgroundColor: Colors.white,
             showBottomBar: false,
@@ -177,8 +179,8 @@ class DetailPageState extends State<DetailPage> {
               children: [
                 Column(
                   children: [
-                    Text('${pokemon.moves[0]}'),
-                    Text('${pokemon.moves[1]}'),
+                    for (int i = 0; i < min(pokemon.moves.length, 3); i++)
+                      Text('${pokemon.moves[i]}'),
                   ],
                 ),
                 Text(AppConstants.home.moves),
