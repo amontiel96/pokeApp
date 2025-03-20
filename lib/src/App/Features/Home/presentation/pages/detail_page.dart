@@ -53,14 +53,14 @@ class DetailPageState extends State<DetailPage> {
           final pokemon = state.pokemon;
           return TDSMHeaderScaffold(
             appBarColor: CoreUtils.getPokemonBackgroundColor(
-              "${pokemon.types[0]}",
+              pokemon.types[0],
             ),
             backgroundType: TDSMBgType.medium,
             backgroundColor: Colors.white,
             showBottomBar: false,
             header: TDSMHeader.withTitle(
               key: const Key('detail'),
-              title: name,
+              title: pokemon.name,
               onActionPressed: () => Modular.to.pop(),
               onNext: UILabel(text: "$id", textColor: Colors.white),
             ),
