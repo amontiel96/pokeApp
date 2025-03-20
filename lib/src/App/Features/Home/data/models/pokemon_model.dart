@@ -11,18 +11,12 @@ class DataPokemon {
     required this.results,
   });
 
-  // Métodos para convertir el JSON en un objeto de tipo PokemonModel
   factory DataPokemon.fromJson(Map<String, dynamic> json) {
-
-
     final List<dynamic> results = json['results'];
-    final listPoke = results
-        .map((pokemonJson) => PokemonModel.fromJson(pokemonJson))
-        .toList();
-    print("amsdev json['count']: ${json['count']}");
-    print("amsdev json['next']: ${json['next']}");
-    print("amsdev json['previous']: ${json['previous']}");
-    //print("amsdev json['results']: ${json['results']}");
+    final listPoke =
+        results
+            .map((pokemonJson) => PokemonModel.fromJson(pokemonJson))
+            .toList();
     return DataPokemon(
       count: json['count'],
       next: json['next'],

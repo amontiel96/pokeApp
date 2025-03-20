@@ -4,9 +4,6 @@ import 'package:poke_app/src/App/Features/Home/data/datasources/pokemon_remote_d
 import 'package:poke_app/src/App/Features/Home/data/models/pokemon_model.dart';
 import 'package:poke_app/src/App/Features/Home/domain/repositories/pokemon_repository.dart';
 
-
-
-
 class PokemonRepositoryImpl implements PokemonRepository {
   final PokemonRemoteDataSource remoteDataSource;
 
@@ -22,22 +19,3 @@ class PokemonRepositoryImpl implements PokemonRepository {
     }
   }
 }
-
-
-/*
-class PokemonRepositoryImpl implements PokemonRepository {
-  final PokemonRemoteDataSource remoteDataSource;
-
-  PokemonRepositoryImpl({required this.remoteDataSource});
-
-  @override
-  Future<Either<Failure, DataPokemon>> getPokemons(String url) async {
-    try {
-      final pokemons = await remoteDataSource.getPokemons(url);
-      return Right(pokemons);
-    } catch (e) {
-      return Left(ApiFailure(message: 'Failed to load Pokemons'));
-    }
-  }
-}
-*/

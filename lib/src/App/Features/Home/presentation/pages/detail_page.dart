@@ -1,11 +1,13 @@
 import 'package:poke_app/src/App/Core/constants/global_constants.dart';
-import 'package:poke_app/src/App/Features/Home/presentation/cubit/pokemon_cubit.dart';
 import 'package:poke_app/src/AtomicModel-UI/module_ui.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 import '../../../../../AtomicModel-UI/organisms/tdsm_backgroud.dart';
 import '../../../../../AtomicModel-UI/organisms/tdsm_header.dart';
 import '../../../../../AtomicModel-UI/organisms/tdsm_header_scaffold.dart';
+import '../../../../Core/utils/utils.dart';
+import '../cubit/pokemon_detail_cubit.dart';
+import '../cubit/pokemon_species_cubit.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({super.key});
@@ -15,28 +17,63 @@ class DetailPage extends StatefulWidget {
 }
 
 class DetailPageState extends State<DetailPage> {
+  final Map<String, dynamic> arguments = Modular.args.data;
+  late String name;
+  late int id;
+  late int count;
+  final pokemonCubit = Modular.get<PokemonDetailCubit>();
+  final speciesCubit = Modular.get<PokemonSpeciesCubit>();
+
   @override
   void initState() {
+    name = arguments['name'];
+    id = arguments['id'];
+    count = arguments['count'];
+    pokemonCubit.fetchPokemonDetails(id);
+    speciesCubit.fetchPokemonSpeciesDetails(id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TDSMHeaderScaffold(
-      backgroundType: TDSMBgType.medium,
-      backgroundColor: Colors.white,
-      showBottomBar: false,
-      header: TDSMHeader.withTitle(
-        key: const Key('detail'),
-        title: 'Bolbasour',
-        onActionPressed: () => Modular.to.pop(),
-      ),
-      heightBodyStart: 80,
-      body: SingleChildScrollView(child: _body()),
+    return _screen();
+  }
+
+  Widget _screen() {
+    return BlocBuilder<PokemonDetailCubit, PokemonDetailState>(
+      bloc: pokemonCubit,
+      builder: (context, state) {
+        if (state is PokemonLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else if (state is PokemonError) {
+          return Center(
+            child: Text('${AppConstants.home.error} ${state.message}'),
+          );
+        } else if (state is PokemonLoaded) {
+          final pokemon = state.pokemon;
+          return TDSMHeaderScaffold(
+            appBarColor: CoreUtils.getPokemonBackgroundColor(
+              "${pokemon.types[0]}",
+            ),
+            backgroundType: TDSMBgType.medium,
+            backgroundColor: Colors.white,
+            showBottomBar: false,
+            header: TDSMHeader.withTitle(
+              key: const Key('detail'),
+              title: name,
+              onActionPressed: () => Modular.to.pop(),
+              onNext: UILabel(text: "$id", textColor: Colors.white),
+            ),
+            heightBodyStart: 80,
+            body: SingleChildScrollView(child: _body(pokemon)),
+          );
+        }
+        return Container();
+      },
     );
   }
 
-  Widget _body() {
+  Widget _body(pokemon) {
     return Column(
       spacing: 20,
       children: [
@@ -44,25 +81,28 @@ class DetailPageState extends State<DetailPage> {
           padding: EdgeInsets.all(5),
           child: Row(
             children: [
-              InkWell(
-                onTap: () {
-                  print("amsdev click before");
-                },
-                child: Icon(Icons.navigate_before, color: Colors.white),
-              ),
+              if (id >= 2)
+                InkWell(
+                  onTap: () {
+                    id = id - 1;
+                    pokemonCubit.fetchPokemonDetails(id);
+                    speciesCubit.fetchPokemonSpeciesDetails(id);
+                  },
+                  child: Icon(Icons.navigate_before, color: Colors.white),
+                ),
               Spacer(),
               Image.network(
-                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
-                height: 300, // Puedes ajustar el tamaño de la imagen
+                AppConstants.home.imgUrl.replaceAll('imgUrl', '$id'),
+                height: 300,
                 width: 300,
-                fit:
-                    BoxFit
-                        .contain, // La imagen se ajustará sin perder proporciones
+                fit: BoxFit.contain,
               ),
               Spacer(),
               InkWell(
                 onTap: () {
-                  print("amsdev click next");
+                  id = id + 1;
+                  pokemonCubit.fetchPokemonDetails(id);
+                  speciesCubit.fetchPokemonSpeciesDetails(id);
                 },
                 child: Icon(Icons.navigate_next, color: Colors.white),
               ),
@@ -70,37 +110,49 @@ class DetailPageState extends State<DetailPage> {
           ),
         ),
 
-        // Centrado de los Containers
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          // Centramos los Containers en el Row
+          spacing: 10,
           children: [
-            Container(
-              height: 20,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: Colors.indigoAccent,
+            for (int i = 0; i < pokemon.types.length; i++)
+              Container(
+                height: 20,
+                width: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: CoreUtils.getPokemonBackgroundColor(
+                    "${pokemon.types[i]}",
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    "${pokemon.types[i]}",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: 10), // Espacio entre los dos Containers
-            Container(
-              height: 20,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: Colors.indigoAccent,
-              ),
-            ),
           ],
         ),
 
-        Center(child: Text('about')),
+        Center(
+          child: Text(
+            AppConstants.home.about,
+            style: TextStyle(
+              color: CoreUtils.getPokemonBackgroundColor("${pokemon.types[0]}"),
+              fontSize: 18,
+            ),
+          ),
+        ),
 
         // Separadores verticales (como un Divider vertical)
         Row(
           children: [
-            Column(children: [Text('69 kg'), Text('Weigh')]),
+            Column(
+              children: [
+                Text('${pokemon.weight / 10} kg'),
+                Text(AppConstants.home.weight),
+              ],
+            ),
             Padding(
               padding: EdgeInsets.only(left: 30),
               child: Container(
@@ -110,111 +162,119 @@ class DetailPageState extends State<DetailPage> {
               ),
             ),
             Spacer(),
-            Column(children: [Text('69 kg'), Text('Weigh')]),
+            Column(
+              children: [
+                Text('${pokemon.height / 10} m'),
+                Text(AppConstants.home.height),
+              ],
+            ),
             Padding(
               padding: EdgeInsets.only(left: 30),
-              child: Container(
-                width: 1, // Un ancho de 1 para el divisor vertical
-                height: 50, // Ajusta la altura del divisor vertical
-                color: Colors.grey, // Color gris para el divisor
-              ),
+              child: Container(width: 1, height: 50, color: Colors.grey),
             ),
             Spacer(),
-            Column(children: [Text('69 kg'), Text('Weigh')]),
+            Column(
+              children: [
+                Column(
+                  children: [
+                    Text('${pokemon.moves[0]}'),
+                    Text('${pokemon.moves[1]}'),
+                  ],
+                ),
+                Text(AppConstants.home.moves),
+              ],
+            ),
           ],
         ),
-
-        Text(
-          'estrtas sada   sad    asddasd asda d asda sdas da sdas dasd   s dasdasdasdasdada sadad d',
+        BlocBuilder<PokemonSpeciesCubit, PokemonSpeciesState>(
+          bloc: speciesCubit,
+          builder: (context, state) {
+            if (state is PokemonSpeciesLoading) {
+              return Center(child: CircularProgressIndicator());
+            } else if (state is PokemonSpeciesError) {
+              return Center(
+                child: Text('${AppConstants.home.error} ${state.message}'),
+              );
+            } else if (state is PokemonSpeciesLoaded) {
+              final species = state.species;
+              return Column(
+                children: [Text(species.flavorTexts[0].replaceAll('\n', ' '))],
+              );
+            }
+            return Container();
+          },
         ),
-        Center(child: Text('Base State')),
-
+        Center(
+          child: Text(
+            AppConstants.home.baseStats,
+            style: TextStyle(
+              color: CoreUtils.getPokemonBackgroundColor("${pokemon.types[0]}"),
+              fontSize: 18,
+            ),
+          ),
+        ),
         Column(
           children: [
-            Row(
-              children: [
-                Text('HP'),
-                Spacer(),
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Container(
-                    width: 1, // Un ancho de 1 para el divisor vertical
-                    height: 50, // Ajusta la altura del divisor vertical
-                    color: Colors.grey, // Color gris para el divisor
+            for (int i = 0; i < pokemon.stats.length; i++)
+              Row(
+                children: [
+                  Container(
+                    height: 20,
+                    width: 25,
+                    child: Text('${(pokemon.stats[i].name)}'),
                   ),
-                ),
-                Text('045'),
-                Spacer(),
-                Padding(
-                  padding: EdgeInsets.only(left: 5),
-                  child: Container(
-                    width: 250,
-                    height: 15,
-                    child: StepProgressIndicator(
-                      totalSteps: 100,
-                      currentStep: 32,
-                      size: 8,
-                      padding: 0,
-                      selectedColor: Colors.yellow,
-                      unselectedColor: Colors.cyan,
-                      roundedEdges: Radius.circular(10),
-                      selectedGradientColor: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.green, Colors.green],
-                      ),
-                      unselectedGradientColor: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.greenAccent, Colors.greenAccent],
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Container(
+                      width: 1,
+                      height: 50,
+                      color: Colors.grey, // Color gris para el divisor
+                    ),
+                  ),
+                  Text('${pokemon.stats[i].baseStat}'),
+                  Spacer(),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: SizedBox(
+                      width: 250,
+                      height: 15,
+                      child: StepProgressIndicator(
+                        totalSteps: 1000,
+                        currentStep: pokemon.stats[i].baseStat,
+                        size: 8,
+                        padding: 0,
+                        selectedColor: Colors.yellow,
+                        unselectedColor: Colors.cyan,
+                        roundedEdges: Radius.circular(10),
+                        selectedGradientColor: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            CoreUtils.getPokemonBackgroundColor(
+                              "${pokemon.types[0]}",
+                            ),
+                            CoreUtils.getPokemonBackgroundColor(
+                              "${pokemon.types[0]}",
+                            ),
+                          ],
+                        ),
+                        unselectedGradientColor: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            CoreUtils.getPokemonBackgroundColor(
+                              "${pokemon.types[0]}",
+                            ).withOpacity(0.3),
+                            CoreUtils.getPokemonBackgroundColor(
+                              "${pokemon.types[0]}",
+                            ).withOpacity(0.3),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text('HP'),
-                Spacer(),
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Container(
-                    width: 1, // Un ancho de 1 para el divisor vertical
-                    height: 50, // Ajusta la altura del divisor vertical
-                    color: Colors.grey, // Color gris para el divisor
-                  ),
-                ),
-                Text('045'),
-                Spacer(),
-                Padding(
-                  padding: EdgeInsets.only(left: 5),
-                  child: Container(
-                    width: 250,
-                    height: 15,
-                    child: StepProgressIndicator(
-                      totalSteps: 100,
-                      currentStep: 32,
-                      size: 8,
-                      padding: 0,
-                      selectedColor: Colors.yellow,
-                      unselectedColor: Colors.cyan,
-                      roundedEdges: Radius.circular(10),
-                      selectedGradientColor: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.green, Colors.green],
-                      ),
-                      unselectedGradientColor: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.greenAccent, Colors.greenAccent],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ],
