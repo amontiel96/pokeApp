@@ -1,18 +1,26 @@
-# pokeApp
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=13F700&random=false&width=435&lines=Hello+%F0%9F%91%8B%2C+I+am+Arturo+Montiel.)](https://git.io/typing-svg)
+
+![Profile Views](https://komarev.com/ghpvc/?username=amontiel96&color=blue)
+[![Linkedin](https://img.shields.io/badge/-ArturoMontiel-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/arturo-montiel-salguero-194059126/)](https://www.linkedin.com/in/arturo-montiel-salguero-194059126/)
+[![Facebook](https://img.shields.io/badge/-ArturoMontiel-blue?style=flat-square&logo=Facebook&logoColor=white&link=https://www.facebook.com/arturo.salguero.94064?mib)](https://www.facebook.com/arturo.salguero.94064?mib)
+
+# AMS :. Pokemon App
 
 Aplicación para mostrar el listado de pokemons y sus detalles
 
-### Ejecutar proyecto:
+![profile animation](https://i.gifer.com/74fQ.gif)
 
-Ejecutar el comando Flutter run
-
-### Estructura del proyecto:
+### Demo:
 
 ![Demo de Proyecto](assets/images/demo/img.png)
 ![Demo de Proyecto](assets/images/demo/img_1.png)
 ![Demo de Proyecto](assets/images/demo/img_2.png)
 ![Demo de Proyecto](assets/images/demo/img_3.png)
 ![Demo de Proyecto](assets/images/demo/img_4.png)
+
+### Ejecutar proyecto:
+
+Ejecutar el comando Flutter run
 
 ### Estructura del proyecto:
 
@@ -52,8 +60,17 @@ lib/
 └── web/
 ```
 
+
+## 📬 Contacto
+
+- **Email:** ticmontiel200596@gmail.com
+- **Website:** https://www.artmontielssolutions.com
+
+Thank you for visiting my GitHub profile! 🚀
+
 ## Flutter Documentation
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
