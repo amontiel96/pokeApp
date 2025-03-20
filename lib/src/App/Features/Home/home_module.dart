@@ -6,7 +6,6 @@ import 'package:poke_app/src/App/Features/Home/presentation/cubit/pokemon_cubit.
 import 'package:poke_app/src/App/Features/Home/presentation/cubit/pokemon_detail_cubit.dart';
 import 'package:poke_app/src/App/Features/Home/presentation/cubit/pokemon_species_cubit.dart';
 import 'package:poke_app/src/App/Features/Home/presentation/pages/detail_page.dart';
-import 'package:poke_app/src/App/Features/Home/presentation/pages/details.dart';
 
 import 'package:poke_app/src/App/injection_container.dart';
 import 'presentation/pages/home_page.dart';
@@ -23,6 +22,5 @@ class HomeModule extends Module {
   void routes(RouteManager r) {
     r.child('/', child: (context) => HomePage());
     r.child('/detail', child: (context) => DetailPage());
-    r.child('/detail2', child: (context) => PokemonDetailsPage(pokemonId: 1,speciesId: 1,));
   }
 }
